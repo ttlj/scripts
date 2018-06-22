@@ -12,19 +12,24 @@
 #  kcompare <kubernetes-yaml-file>
 #
 
-deployed="/tmp/${1}_deployed.yml"
-source_apply="/tmp/${1}_source_apply.yml"
-source_create="/tmp/${1}_source_create.yml"
+bname=$(basename "${1}")
+deployed=$(mktemp "/tmp/${bname}__deployed.XXXXX")
+source_apply=$(mktemp "/tmp/${bname}__source_apply.XXXXX")
+source_create=$(mktemp "/tmp/${bname}__source_create.XXXXX")
+echo $1
+echo $deployed
+echo $source_apply
+echo $source_create
 
-kubectl create --dry-run -f ${1} \
+kubectl create --dry-run -f "${1}" \
     | cut -d " " -f 1,2 | sed -e 's| |/|' | sed -e 's/\"//g' \
     | while read x; do
-    kubectl get -o yaml --export $x
+    kubectl get -o yaml --export "${x}"
     echo "---"
 done > ${deployed}
 
-kubectl apply --dry-run -o yaml -f ${1} > /tmp/${1}_source_apply.yml
-kubectl create --dry-run -o yaml -f ${1} > /tmp/${1}_source_create.yml
+kubectl apply --dry-run -o yaml -f ${1} > "${source_apply}"
+kubectl create --dry-run -o yaml -f ${1} > "${source_create}"
 
 if [[ -z ${DIFFER} ]]; then
     diff ${source_apply} ${deployed}
