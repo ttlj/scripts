@@ -48,7 +48,7 @@ function process_args {
         esac
     done
     KINDS=${KINDS:-deploy,sts,job}
-    CONTEXT=${CONTEXT:-}
+    CTX=${CTX:-}
     CLUSTER=${CLUSTER:-}
     NAMESPACE=${NAMESPACE:-}
 }
