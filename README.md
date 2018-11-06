@@ -13,8 +13,12 @@ TODO better descriptions
 * clone repo and add the local working copy in the PATH
 
 
+# Git Scripts
 
-# Kubernetes Script
+* rmbranches: removes merged branches
+
+
+# Kubernetes Scripts
 
 Script named with leading 'k' are Kubernetes related:
 
