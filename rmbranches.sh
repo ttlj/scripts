@@ -94,7 +94,7 @@ process_args "$@"
 
 get_limit
 
-git fetch --prune --all
+git fetch --prune --all --quiet
 
 
 if [[ "$LIVE" -eq "1" ]]; then
