@@ -31,16 +31,18 @@ function process_args {
 }
 
 function usage {
-  echo "Usage: rmbranches [-w <weeks>] [-l]" >&2
-  echo "   -w <weeks> - latest commit is as least <weeks> weeks old; default=8" >&2
-  echo "   -l         - actually remove the branches instead of just showing what to run" >&2
-  echo "   -h         - show this help" >&2
-  echo "" >&2
-  echo "Remove merged branches whose latest commit is at least <weeks> old." >&2
-  echo "Never removes branches: develop, master, release/[0-9]." >&2
-  echo "" >&2
-  echo "NOTE: Only branches merged into the current branch will be listed!" >&2
-  echo "      Current branch: ${CURR_BRANCH}" >&2
+    cat <<EOF
+Usage: $0 [-w <weeks>] [-l]
+   -w <weeks> - latest commit is as least <weeks> weeks old; default=8
+   -l         - actually remove the branches instead of just showing what to run
+   -h         - show this help
+
+Remove merged branches whose latest commit is at least <weeks> old.
+Never removes branches: develop, master, release/[0-9].
+
+NOTE: Only branches merged into the current branch will be listed!
+      Current branch: ${CURR_BRANCH}
+EOF
 }
 
 function get_limit {

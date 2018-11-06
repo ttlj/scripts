@@ -6,19 +6,22 @@ set -o pipefail
 
 
 function usage {
-    echo "Usage: kversions [-k] file+" >&2
-    echo "   -k - kinds (default: deploy,sts,job)" >&2
-    echo "   -c - The name of the kubeconfig cluster to use"
-    echo "   -x - The name of the kubeconfig context to use"
-    echo "   -n - If present, the namespace scope for this CLI request"
-    echo "   -h - show this help" >&2
-    echo "" >&2
-    echo "Lists container's versions." >&2
+    cat <<EOF
+Usage: $0 [-k kinds] [-x context] [-c cluster] [-n namespace] [-s sep]
+   -k - kinds (default: deploy,sts)
+   -c - name of the kubeconfig cluster to use
+   -x - name of the kubeconfig context to use
+   -n - namespace scope
+   -s - separator; default=:\t
+   -h - show this help
+
+Lists container's versions for specified <kinds>
+EOF
 }
 
 
 function process_args {
-    while getopts ":hk:x:c:n:" opt; do
+    while getopts ":hk:x:c:n:s:" opt; do
         case $opt in
             k)
                 KINDS="$OPTARG"
@@ -31,6 +34,9 @@ function process_args {
                 ;;
             n)
                 NAMESPACE=$OPTARG
+                ;;
+            s)
+                SEP=$OPTARG
                 ;;
             h)
                 usage
@@ -47,10 +53,11 @@ function process_args {
             ;;
         esac
     done
-    KINDS=${KINDS:-deploy,sts,job}
+    KINDS=${KINDS:-deploy,sts}
     CTX=${CTX:-}
     CLUSTER=${CLUSTER:-}
     NAMESPACE=${NAMESPACE:-}
+    SEP=${SEP:-":\t"}
 }
 
 
@@ -58,7 +65,8 @@ process_args "$@"
 shift $((${OPTIND}-1))
 
 QRY_VER='{range .items[*]}{"\n"}{.metadata.name}{":\t"}{range .spec.containers[*]}{.image}{", "}{end}{end}'
-QRY_VER_STS='{range .items[*]}{"\n"}{.metadata.name}{":\t"}{range .spec.template.spec.containers[*]}{.image}{", "}{end}{end}'
+QRY_VER_STS='{range .items[*]}{"\n"}{.metadata.name}{"'${SEP}'"}{range .spec.template.spec.containers[*]}{.image}{end}{end}'
+QRY_VER_POD='{range .items[*]}{"\n"}{.metadata.name}{", "}{range .status.containerStatuses[*]}{.image}{", "}{range .status.containerStatuses[*]}{.imageID}{"foobar"}{end}{end}{end}'
 
 
 kversions=$(mktemp /tmp/kversions.XXXXXX)
