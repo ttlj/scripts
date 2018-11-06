@@ -39,7 +39,8 @@ function usage {
   echo "Remove merged branches whose latest commit is at least <weeks> old." >&2
   echo "Never removes branches: develop, master, release/[0-9]." >&2
   echo "" >&2
-  echo "Current branch: ${CURR_BRANCH}" >&2
+  echo "NOTE: Only branches merged into the current branch will be listed!" >&2
+  echo "      Current branch: ${CURR_BRANCH}" >&2
 }
 
 function get_limit {
@@ -108,7 +109,8 @@ if [[ "$LIVE" -eq "1" ]]; then
         exit 1
     fi
 else
-    echo "Branches for deletion:"
+    echo "Branches for deletion (merged into: ${CURR_BRANCH}):"
+    echo ""
 fi
 
 
