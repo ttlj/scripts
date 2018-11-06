@@ -9,8 +9,9 @@ TODO better descriptions
 
 # Installation
 
-* Save script(s) to a folder already in the path, or
-* clone repo and add the local working copy in the PATH
+* Save script(s) to a folder already in the PATH, or
+* clone repo and add the local working copy in the PATH, or
+* clone repo and simply run the scripts from the working copy
 
 
 # Git Scripts
