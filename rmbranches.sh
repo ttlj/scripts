@@ -2,6 +2,8 @@
 # Deletes remote git branches which are older than N weeks and have been merged
 #
 
+CURR_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
 function process_args {
   while getopts ":hlw:" opt; do
     case $opt in
@@ -36,6 +38,8 @@ function usage {
   echo "" >&2
   echo "Remove merged branches whose latest commit is at least <weeks> old." >&2
   echo "Never removes branches: develop, master, release/[0-9]." >&2
+  echo "" >&2
+  echo "Current branch: ${CURR_BRANCH}" >&2
 }
 
 function get_limit {
@@ -72,7 +76,6 @@ function merged_branches {
 }
 
 function delete_branches {
-  echo "Deleting branches"
   while read branch; do
     if [[ "$LIVE" -eq "1" ]]; then
       # echo "Live"
@@ -87,27 +90,33 @@ function delete_branches {
 
 # MAIN
 
-BRANCH=$(git rev-parse --abbrev-ref HEAD)
-echo "Current branch: ${BRANCH}"
-#read -p "Are you sure? " -n 1 -r
-#echo    # (optional) move to a new line
-#if [[ $REPLY =~ ^[Yy]$ ]]
-#then
-#    echo do dangerous stuff
-#fi
-
-
 process_args "$@"
 
 get_limit
 
 git fetch --prune --all
 
+
+if [[ "$LIVE" -eq "1" ]]; then
+    # echo "Live"
+    echo "Deleting branches merged into '${CURR_BRANCH}'!"
+    read -p "Are you sure (y/n)? " -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Yy]$ ]]
+    then
+        echo "Aborting..."
+        exit 1
+    fi
+else
+    echo "Branches for deletion:"
+fi
+
+
 old_branches=$(mktemp /tmp/purge-branches.XXXXXX)
 merged_branches=$(mktemp /tmp/purge-branches.XXXXXX)
 
-echo $old_branches
-echo $merged_branches
+# echo old, $old_branches
+# echo merged, $merged_branches
 
 get_branches \
   | filter_by_date \
@@ -121,7 +130,7 @@ merged_branches | grep -F -v ' -> ' | grep -F -v 'master' \
   | sort \
   > $merged_branches
 
-wc -l $merged_branches
+# wc -l $merged_branches
 
 join $old_branches $merged_branches \
   | delete_branches
