@@ -65,7 +65,7 @@ process_args "$@"
 shift $((${OPTIND}-1))
 
 QRY_VER='{range .items[*]}{"\n"}{.metadata.name}{":\t"}{range .spec.containers[*]}{.image}{", "}{end}{end}'
-QRY_VER_STS='{range .items[*]}{"\n"}{.metadata.name}{"'${SEP}'"}{range .spec.template.spec.containers[*]}{.image}{end}{end}'
+QRY_VER_STS='{range .items[*]}{"\n"}{.metadata.name}{"'${SEP}'"}{range .spec.template.spec.containers[*]}{.image}{";"}{end}{end}'
 QRY_VER_POD='{range .items[*]}{"\n"}{.metadata.name}{", "}{range .status.containerStatuses[*]}{.image}{", "}{range .status.containerStatuses[*]}{.imageID}{"foobar"}{end}{end}{end}'
 
 
@@ -89,4 +89,4 @@ for i in "${kinds[@]}"; do
     ${cmd} get "$i" -o=jsonpath="${QRY_VER_STS}" $@ >> ${kversions}
 done
 
-sort ${kversions} | uniq
+sort ${kversions} | uniq | sed 's/;$//'
